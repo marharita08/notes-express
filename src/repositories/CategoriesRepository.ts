@@ -5,6 +5,13 @@ async function getAll(): Promise<string[]> {
     return db.categories;
 }
 
+async function persists(category: string): Promise<boolean> {
+    const db = await orm.openDb();
+    const index = db.categories.indexOf(category);
+    return index !== -1;
+}
+
 export default {
-    getAll
+    getAll,
+    persists
 } as const;

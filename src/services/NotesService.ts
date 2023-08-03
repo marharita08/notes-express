@@ -5,8 +5,7 @@ import HttpStatusCodes from "../constants/HttpStatusCodes";
 import {RouteError} from "../other/classes";
 import {findDates} from "../helpers/findDates";
 import {IStats} from "../model/Stats";
-
-export const NOTE_NOT_FOUND_ERR = "Note not found";
+import ErrorMessages from "../constants/ErrorMessages";
 
 async function getAll():Promise<INote[]> {
     return NotesRepository.getAll();
@@ -17,13 +16,20 @@ async function getOne(id: number): Promise<INote | undefined> {
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            NOTE_NOT_FOUND_ERR,
+            ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
     return NotesRepository.getOne(id);
 }
 
 async function addOne(name: string, category: string, content: string): Promise<void> {
+    const persists = await CategoriesRepository.persists(category);
+    if (!persists) {
+        throw new RouteError(
+            HttpStatusCodes.NOT_FOUND,
+            ErrorMessages.CATEGORY_NOT_FOUND_ERR(category),
+        );
+    }
     const created = new Date().toLocaleDateString();
     const dates = findDates(content);
     const archived = false;
@@ -35,7 +41,14 @@ async function updateFields(id: number, name: string, category: string, content:
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            NOTE_NOT_FOUND_ERR,
+            ErrorMessages.NOTE_NOT_FOUND_ERR,
+        );
+    }
+    const categoryPersists = await CategoriesRepository.persists(category);
+    if (!categoryPersists) {
+        throw new RouteError(
+            HttpStatusCodes.NOT_FOUND,
+            ErrorMessages.CATEGORY_NOT_FOUND_ERR(category),
         );
     }
     const dates = findDates(content);
@@ -47,7 +60,7 @@ async function updateArchived(id: number, archived: boolean): Promise<void> {
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            NOTE_NOT_FOUND_ERR,
+            ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
     return NotesRepository.updateArchived(id, archived);
@@ -58,7 +71,7 @@ async function _delete(id: number): Promise<void> {
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            NOTE_NOT_FOUND_ERR,
+            ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
     return NotesRepository.delete(id);
