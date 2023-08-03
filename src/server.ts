@@ -12,5 +12,5 @@ app.use("/notes", NotesRoute);
 app.use(errorHandler);
 
 app.listen(port, ()=> {
-    console.log(`[Server]: I am running at https://localhost:${port}`);
+    console.log(`[Server]: I am running at http://localhost:${port}`);
 });
