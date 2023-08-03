@@ -6,16 +6,26 @@ import {findDates} from "../helpers/findDates";
 
 export const NOTE_NOT_FOUND_ERR = "Note not found";
 
-function getAll():Promise<INote[]> {
+async function getAll():Promise<INote[]> {
     return NotesRepository.getAll();
 }
 
-function getOne(id: number): Promise<INote | undefined> {
+async function getOne(id: number): Promise<INote | undefined> {
+    const persists = await NotesRepository.persists(id);
+    if (!persists) {
+        throw new RouteError(
+            HttpStatusCodes.NOT_FOUND,
+            NOTE_NOT_FOUND_ERR,
+        );
+    }
     return NotesRepository.getOne(id);
 }
 
-function addOne(note: INote): Promise<void> {
-    return NotesRepository.add(note);
+async function addOne(name: string, category: string, content: string): Promise<void> {
+    const created = new Date().toLocaleDateString();
+    const dates = findDates(content);
+    const archived = false;
+    return NotesRepository.add({name, created, category, content, dates, archived});
 }
 
 async function updateFields(id: number, name: string, category: string, content: string): Promise<void> {

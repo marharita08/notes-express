@@ -1,5 +1,4 @@
 import {INote} from "../model/Note";
-import {getNumber} from "../helpers/counter";
 import orm from './MockOrm';
 
 
@@ -15,10 +14,11 @@ async function getOne(id: number): Promise<INote | undefined> {
 
 async function add(note: INote): Promise<void> {
     const db = await orm.openDb();
-    note.id = getNumber();
-    db.notes.push(note);
+    const id = db.noteIdSeq++;
+    db.notes.push({id, ...note});
     return orm.saveDb(db);
 }
+
 async function delete_(id: number): Promise<void> {
     const db = await orm.openDb();
     db.notes = db.notes.filter((note: INote) => note.id !== id);
