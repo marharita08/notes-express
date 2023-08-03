@@ -9,6 +9,11 @@ NotesRoute.get('/', asyncHandler(async (req: Request, res: Response)=> {
   res.status(HttpStatusCodes.OK).json(notes);
 }));
 
+NotesRoute.get('/stats', asyncHandler(async (req: Request, res: Response)=> {
+  const stats = await NotesService.getStats();
+  res.status(HttpStatusCodes.OK).json(stats);
+}));
+
 NotesRoute.get('/:id', asyncHandler(async (req: Request, res: Response)=> {
   const id = +req.params.id;
   const note = await NotesService.getOne(id)

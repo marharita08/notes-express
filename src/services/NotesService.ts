@@ -1,8 +1,10 @@
 import NotesRepository from "../repositories/NotesRepository";
+import CategoriesRepository from "../repositories/CategoriesRepository";
 import {INote} from "../model/Note";
 import HttpStatusCodes from "../constants/HttpStatusCodes";
 import {RouteError} from "../other/classes";
 import {findDates} from "../helpers/findDates";
+import {IStats} from "../model/Stats";
 
 export const NOTE_NOT_FOUND_ERR = "Note not found";
 
@@ -62,6 +64,26 @@ async function _delete(id: number): Promise<void> {
     return NotesRepository.delete(id);
 }
 
+async function getStats(): Promise<IStats[]> {
+    const categories = await CategoriesRepository.getAll();
+    const notes = await NotesRepository.getAll();
+    const stats: IStats[] = [];
+    categories.forEach((category: string) => {
+        const active = countActiveNotesByCategory(notes, category);
+        const archived = countArchivedNoteByCategory(notes, category);
+        stats.push({category, active, archived});
+    });
+    return stats;
+}
+
+function countActiveNotesByCategory(notes: INote[], category: string) {
+    return notes.filter((note: INote) => note.category === category && !note.archived).length;
+}
+
+function countArchivedNoteByCategory(notes: INote[], category: string) {
+    return notes.filter((note: INote) => note.category === category && note.archived).length;
+}
+
 export default {
     getAll,
     getOne,
@@ -69,5 +91,6 @@ export default {
     updateFields,
     updateArchived,
     delete: _delete,
+    getStats
 } as const;
 

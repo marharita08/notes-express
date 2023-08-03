@@ -6,7 +6,8 @@ const DB_FILE_NAME = 'database.json';
 
 interface IDb {
     notes: INote[],
-    noteIdSeq: number
+    noteIdSeq: number,
+    categories: string[]
 }
 
 function openDb(): Promise<IDb> {

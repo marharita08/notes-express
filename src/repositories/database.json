@@ -64,5 +64,6 @@
       "archived": false
     }
   ],
-  "noteIdSeq": 8
+  "noteIdSeq": 8,
+  "categories": ["Task", "Idea", "Random Thought"]
 }
