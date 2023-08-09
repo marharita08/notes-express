@@ -1,0 +1,36 @@
+version: '3.5'
+
+services:
+  db:
+    image: postgres
+    container_name: db_notes
+    restart: always
+    environment:
+      POSTGRES_HOST: ${DB_HOST}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ./tmp/db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - ${DB_PORT}:5432
+  adminer:
+    image: adminer
+    container_name: adminer_notes
+    restart: always
+    ports:
+      - ${ADMINER_PORT}:8080
+    depends_on:
+      - db
+  api:
+    image: node
+    container_name: api_notes
+    working_dir: /notes-express
+    volumes:
+      - .:/notes-express
+    ports:
+      - ${APP_PORT}:3000
+    depends_on:
+      - db
+    command: "npm run start"
