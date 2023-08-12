@@ -17,6 +17,14 @@ async function getAll():Promise<INote[]> {
     return NotesRepository.getAll();
 }
 
+async function getActive():Promise<INote[]> {
+    return NotesRepository.getActive();
+}
+
+async function getArchived():Promise<INote[]> {
+    return NotesRepository.getArchived();
+}
+
 async function getOne(id: number): Promise<INote | null> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
@@ -95,6 +103,8 @@ async function getStats(): Promise<IStats[]> {
 
 export default {
     getAll,
+    getActive,
+    getArchived,
     getOne,
     addOne,
     update,

@@ -20,6 +20,22 @@ async function getAll(): Promise<INote[]> {
     });
 }
 
+async function getActive(): Promise<INote[]> {
+    return Note.findAll({
+        where: { archived: false },
+        include: [{ model: Category, as:'category' }],
+        order: [['note_id', 'ASC']],
+    });
+}
+
+async function getArchived(): Promise<INote[]> {
+    return Note.findAll({
+        where: { archived: true },
+        include: [{ model: Category, as:'category' }],
+        order: [['note_id', 'ASC']],
+    });
+}
+
 async function getOne(id: number): Promise<INote | null> {
     return Note.findByPk(id, { include: [{ model: Category, as:'category' }] });
 }
@@ -58,6 +74,8 @@ export default {
     getOne,
     persists,
     getAll,
+    getActive,
+    getArchived,
     add,
     update,
     updateArchived,

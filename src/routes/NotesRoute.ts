@@ -10,8 +10,20 @@ import validateArchiveRequest from "../middleware/ValidateArchiveRequest";
 
 NotesRoute.get('/', validateEmptyRequestBody,
     asyncHandler(async (req: Request, res: Response)=> {
-      const notes = await NotesService.getAll()
+      const notes = await NotesService.getAll();
       res.status(HttpStatusCodes.OK).json(notes);
+}));
+
+NotesRoute.get('/active', validateEmptyRequestBody,
+    asyncHandler(async (req: Request, res: Response)=> {
+        const notes = await NotesService.getActive();
+        res.status(HttpStatusCodes.OK).json(notes);
+}));
+
+NotesRoute.get('/archived', validateEmptyRequestBody,
+    asyncHandler(async (req: Request, res: Response)=> {
+        const notes = await NotesService.getArchived();
+        res.status(HttpStatusCodes.OK).json(notes);
 }));
 
 NotesRoute.get('/stats', validateEmptyRequestBody,
