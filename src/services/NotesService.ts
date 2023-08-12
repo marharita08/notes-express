@@ -1,5 +1,5 @@
 import NotesRepository from "../repositories/NotesRepository";
-import CategoriesRepository from "../repositories/CategoriesRepository";
+import CategoriesService from "./CategoriesService";
 import {INote} from "../model/Note";
 import HttpStatusCodes from "../constants/HttpStatusCodes";
 import {RouteError} from "../other/classes";
@@ -37,7 +37,7 @@ async function getOne(id: number): Promise<INote | null> {
 }
 
 async function addOne(note: INoteAddUpdate): Promise<number> {
-    const persists = await CategoriesRepository.persists(note.category_id);
+    const persists = await CategoriesService.persists(note.category_id);
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
@@ -57,7 +57,7 @@ async function update(id: number, note: INoteAddUpdate): Promise<void> {
             ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
-    const categoryPersists = await CategoriesRepository.persists(note.category_id);
+    const categoryPersists = await CategoriesService.persists(note.category_id);
     if (!categoryPersists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
@@ -91,7 +91,7 @@ async function _delete(id: number): Promise<void> {
 }
 
 async function getStats(): Promise<IStats[]> {
-    const categories = await CategoriesRepository.getAll();
+    const categories = await CategoriesService.getAll();
     const stats: IStats[] = [];
     for (const category of categories) {
         const active = await NotesRepository.countActiveNotesByCategory(category.category_id);
