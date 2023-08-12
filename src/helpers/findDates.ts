@@ -10,6 +10,7 @@ export function findDates(str: string) {
                 datesStr += ", "
             }
         }
+        return datesStr;
     }
-    return datesStr;
+    return undefined;
 }

@@ -4,17 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc && npm run copy-json",
+    "build": "npx tsc",
     "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "copy-json": "node copy-json.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonfile": "^6.1.0",
+    "pg": "^8.11.2",
+    "pg-hstore": "^2.3.4",
+    "postgres": "^3.3.5",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.32.1",
+    "sequelize-typescript": "^2.1.5",
     "typescript": "^5.1.6",
     "yup": "^1.2.0"
   },

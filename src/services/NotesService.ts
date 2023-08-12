@@ -1,5 +1,5 @@
 import NotesRepository from "../repositories/NotesRepository";
-import CategoriesRepository from "../repositories/CategoriesRepository";
+import CategoriesService from "./CategoriesService";
 import {INote} from "../model/Note";
 import HttpStatusCodes from "../constants/HttpStatusCodes";
 import {RouteError} from "../other/classes";
@@ -7,11 +7,25 @@ import {findDates} from "../helpers/findDates";
 import {IStats} from "../model/Stats";
 import ErrorMessages from "../constants/ErrorMessages";
 
+interface INoteAddUpdate {
+    name: string,
+    category_id: number,
+    content: string,
+}
+
 async function getAll():Promise<INote[]> {
     return NotesRepository.getAll();
 }
 
-async function getOne(id: number): Promise<INote | undefined> {
+async function getActive():Promise<INote[]> {
+    return NotesRepository.getActive();
+}
+
+async function getArchived():Promise<INote[]> {
+    return NotesRepository.getArchived();
+}
+
+async function getOne(id: number): Promise<INote | null> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
         throw new RouteError(
@@ -22,21 +36,20 @@ async function getOne(id: number): Promise<INote | undefined> {
     return NotesRepository.getOne(id);
 }
 
-async function addOne(name: string, category: string, content: string): Promise<void> {
-    const persists = await CategoriesRepository.persists(category);
+async function addOne(note: INoteAddUpdate): Promise<number> {
+    const persists = await CategoriesService.persists(note.category_id);
     if (!persists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            ErrorMessages.CATEGORY_NOT_FOUND_ERR(category),
+            ErrorMessages.CATEGORY_NOT_FOUND_ERR,
         );
     }
-    const created = new Date().toLocaleDateString();
-    const dates = findDates(content);
+    const dates = findDates(note.content);
     const archived = false;
-    return NotesRepository.add({name, created, category, content, dates, archived});
+    return NotesRepository.add({...note, dates, archived});
 }
 
-async function updateFields(id: number, name: string, category: string, content: string): Promise<void> {
+async function update(id: number, note: INoteAddUpdate): Promise<void> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
         throw new RouteError(
@@ -44,15 +57,15 @@ async function updateFields(id: number, name: string, category: string, content:
             ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
-    const categoryPersists = await CategoriesRepository.persists(category);
+    const categoryPersists = await CategoriesService.persists(note.category_id);
     if (!categoryPersists) {
         throw new RouteError(
             HttpStatusCodes.NOT_FOUND,
-            ErrorMessages.CATEGORY_NOT_FOUND_ERR(category),
+            ErrorMessages.CATEGORY_NOT_FOUND_ERR,
         );
     }
-    const dates = findDates(content);
-    return NotesRepository.updateFields(id, name, category, content, dates);
+    const dates = findDates(note.content);
+    return NotesRepository.update(id, {...note, dates});
 }
 
 async function updateArchived(id: number, archived: boolean): Promise<void> {
@@ -78,30 +91,23 @@ async function _delete(id: number): Promise<void> {
 }
 
 async function getStats(): Promise<IStats[]> {
-    const categories = await CategoriesRepository.getAll();
-    const notes = await NotesRepository.getAll();
+    const categories = await CategoriesService.getAll();
     const stats: IStats[] = [];
-    categories.forEach((category: string) => {
-        const active = countActiveNotesByCategory(notes, category);
-        const archived = countArchivedNoteByCategory(notes, category);
-        stats.push({category, active, archived});
-    });
+    for (const category of categories) {
+        const active = await NotesRepository.countActiveNotesByCategory(category.category_id);
+        const archived = await NotesRepository.countArchivedNotesByCategory(category.category_id);
+        stats.push({category: category.category, active, archived})
+    }
     return stats;
-}
-
-function countActiveNotesByCategory(notes: INote[], category: string) {
-    return notes.filter((note: INote) => note.category === category && !note.archived).length;
-}
-
-function countArchivedNoteByCategory(notes: INote[], category: string) {
-    return notes.filter((note: INote) => note.category === category && note.archived).length;
 }
 
 export default {
     getAll,
+    getActive,
+    getArchived,
     getOne,
     addOne,
-    updateFields,
+    update,
     updateArchived,
     delete: _delete,
     getStats
