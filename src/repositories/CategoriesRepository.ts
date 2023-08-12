@@ -1,14 +1,12 @@
-import orm from './MockOrm';
+import Category, {ICategory} from "../model/Category";
 
-async function getAll(): Promise<string[]> {
-    const db = await orm.openDb();
-    return db.categories;
+async function getAll(): Promise<ICategory[]> {
+    return Category.findAll();
 }
 
-async function persists(category: string): Promise<boolean> {
-    const db = await orm.openDb();
-    const index = db.categories.indexOf(category);
-    return index !== -1;
+async function persists(category_id: number): Promise<boolean> {
+    let category: Category | null = await Category.findByPk(category_id);
+    return category !== null;
 }
 
 export default {

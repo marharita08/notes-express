@@ -1,55 +1,57 @@
 import {INote} from "../model/Note";
-import orm from './MockOrm';
+import Note from "../model/Note";
+import Category from "../model/Category";
 
+interface INoteUpdate {
+    name: string,
+    category_id: number,
+    content: string,
+    dates?: string,
+}
+
+interface INoteAdd extends INoteUpdate{
+    archived: boolean,
+}
 
 async function getAll(): Promise<INote[]> {
-    const db = await orm.openDb();
-    return db.notes;
+    return Note.findAll({
+        include: [{ model: Category, as:'category' }],
+        order: [['note_id', 'ASC']],
+    });
 }
 
-async function getOne(id: number): Promise<INote | undefined> {
-    const db = await orm.openDb();
-    return db.notes.find((note: INote) => note.id === id);
+async function getOne(id: number): Promise<INote | null> {
+    return Note.findByPk(id, { include: [{ model: Category, as:'category' }] });
 }
 
-async function add(note: INote): Promise<void> {
-    const db = await orm.openDb();
-    const id = db.noteIdSeq++;
-    db.notes.push({id, ...note});
-    return orm.saveDb(db);
+async function add(note: INoteAdd): Promise<number> {
+    const createdNote = await Note.create(note)
+    return createdNote.note_id;
 }
 
 async function delete_(id: number): Promise<void> {
-    const db = await orm.openDb();
-    db.notes = db.notes.filter((note: INote) => note.id !== id);
-    return orm.saveDb(db);
+    await Note.destroy({ where: { note_id: id }});
 }
 
-function getIndexById(id: number, notes: INote[]): number {
-    return notes.findIndex((note: INote) => note.id === id);
-}
-
-async function updateFields(id: number, name: string, category: string, content: string, dates: string): Promise<void> {
-    const db = await orm.openDb();
-    const index:number = getIndexById(id, db.notes);
-    db.notes[index].name = name;
-    db.notes[index].category = category;
-    db.notes[index].content = content;
-    db.notes[index].dates = dates;
-    return orm.saveDb(db);
+async function update(id: number, note: INoteUpdate): Promise<void> {
+    await Note.update(note, { where: { note_id: id }});
 }
 
 async function updateArchived(id: number, archived: boolean): Promise<void> {
-    const db = await orm.openDb();
-    const index:number = getIndexById(id, db.notes);
-    db.notes[index].archived = archived;
-    return orm.saveDb(db);
+    await Note.update({ archived }, { where: { note_id: id }})
 }
 
 async function persists(id: number): Promise<boolean> {
-    const db = await orm.openDb();
-    const index = getIndexById(id, db.notes);
-    return index !== -1;
+    let note = await Note.findByPk(id);
+    return note !== null;
+}
+
+async function countActiveNotesByCategory(category_id: number): Promise<number> {
+    return Note.count({ where: { category_id, archived: false }});
+}
+
+async function countArchivedNotesByCategory(category_id: number): Promise<number> {
+    return Note.count({ where: { category_id, archived: true }});
 }
 
 export default {
@@ -57,7 +59,9 @@ export default {
     persists,
     getAll,
     add,
-    updateFields,
+    update,
     updateArchived,
     delete: delete_,
+    countArchivedNotesByCategory,
+    countActiveNotesByCategory
 } as const;

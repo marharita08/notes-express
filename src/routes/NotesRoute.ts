@@ -3,9 +3,10 @@ import NotesService from "../services/NotesService";
 const NotesRoute = express.Router();
 import HttpStatusCodes from "../constants/HttpStatusCodes";
 import asyncHandler from "../middleware/AsyncHandler";
-import validatePatchRequest from "../middleware/ValidatePatchRequest";
+import validateUpdateRequest from "../middleware/ValidateUpdateRequest";
 import validatePostRequest from "../middleware/ValidatePostRequest";
 import validateEmptyRequestBody from "../middleware/ValidateEmptyRequestBody";
+import validateArchiveRequest from "../middleware/ValidateArchiveRequest";
 
 NotesRoute.get('/', validateEmptyRequestBody,
     asyncHandler(async (req: Request, res: Response)=> {
@@ -28,21 +29,23 @@ NotesRoute.get('/:id', validateEmptyRequestBody,
 
 NotesRoute.post('/', validatePostRequest,
     asyncHandler(async (req: Request, res: Response)=> {
-      const {name, category, content} = req.body;
-      await NotesService.addOne(name, category, content);
-      res.status(HttpStatusCodes.CREATED).end();
+      const id = await NotesService.addOne(req.body);
+      res.status(HttpStatusCodes.CREATED).json({ id });
 }));
 
-NotesRoute.patch('/:id', validatePatchRequest,
+NotesRoute.patch('/:id', validateUpdateRequest,
     asyncHandler(async (req: Request, res: Response)=> {
-      const {name, category, content, archived} = req.body;
       const id = +req.params.id;
-      if (archived !== undefined) {
-        await NotesService.updateArchived(id, archived);
-      } else {
-        await NotesService.updateFields(id, name, category, content);
-      }
+      await NotesService.update(id, req.body);
       res.status(HttpStatusCodes.OK).end();
+}));
+
+NotesRoute.patch('/archive/:id', validateArchiveRequest,
+    asyncHandler(async (req: Request, res: Response)=> {
+          const id = +req.params.id;
+          const { archived } = req.body;
+          await NotesService.updateArchived(id, archived);
+          res.status(HttpStatusCodes.OK).end();
 }));
 
 NotesRoute.delete('/:id', validateEmptyRequestBody,
