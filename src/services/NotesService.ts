@@ -36,7 +36,7 @@ async function getOne(id: number): Promise<INote | null> {
     return NotesRepository.getOne(id);
 }
 
-async function addOne(note: INoteAddUpdate): Promise<number> {
+async function addOne(note: INoteAddUpdate): Promise<INote|null> {
     const persists = await CategoriesService.persists(note.category_id);
     if (!persists) {
         throw new RouteError(
@@ -46,10 +46,11 @@ async function addOne(note: INoteAddUpdate): Promise<number> {
     }
     const dates = findDates(note.content);
     const archived = false;
-    return NotesRepository.add({...note, dates, archived});
+    const addedNote = await NotesRepository.add({...note, dates, archived});
+    return NotesRepository.getOne(addedNote.note_id);
 }
 
-async function update(id: number, note: INoteAddUpdate): Promise<void> {
+async function update(id: number, note: INoteAddUpdate): Promise<INote|null> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
         throw new RouteError(
@@ -65,10 +66,11 @@ async function update(id: number, note: INoteAddUpdate): Promise<void> {
         );
     }
     const dates = findDates(note.content);
-    return NotesRepository.update(id, {...note, dates});
+    await NotesRepository.update(id, {...note, dates});
+    return NotesRepository.getOne(id);
 }
 
-async function updateArchived(id: number, archived: boolean): Promise<void> {
+async function updateArchived(id: number, archived: boolean): Promise<INote|null> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
         throw new RouteError(
@@ -76,10 +78,11 @@ async function updateArchived(id: number, archived: boolean): Promise<void> {
             ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
-    return NotesRepository.updateArchived(id, archived);
+    await NotesRepository.updateArchived(id, archived);
+    return NotesRepository.getOne(id);
 }
 
-async function _delete(id: number): Promise<void> {
+async function _delete(id: number): Promise<INote|null> {
     const persists = await NotesRepository.persists(id);
     if (!persists) {
         throw new RouteError(
@@ -87,7 +90,9 @@ async function _delete(id: number): Promise<void> {
             ErrorMessages.NOTE_NOT_FOUND_ERR,
         );
     }
-    return NotesRepository.delete(id);
+    const note = await NotesRepository.getOne(id);
+    await NotesRepository.delete(id);
+    return note;
 }
 
 async function getStats(): Promise<IStats[]> {
@@ -96,7 +101,7 @@ async function getStats(): Promise<IStats[]> {
     for (const category of categories) {
         const active = await NotesRepository.countActiveNotesByCategory(category.category_id);
         const archived = await NotesRepository.countArchivedNotesByCategory(category.category_id);
-        stats.push({category: category.category, active, archived})
+        stats.push({category: category.name, active, archived})
     }
     return stats;
 }
