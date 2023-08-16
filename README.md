@@ -1,6 +1,8 @@
-# notes-express
+# Notes
 
-The notes-express is API that allows to manage notes.
+This repository holds back-end of the Note App. It's front-end available by [link](https://github.com/marharita08/notes-react).
+
+The Notes App is an application that allows users to manage their notes effectively. Users can add, edit, and delete notes. Additionally, notes can be archived and unarchived for better organization.
 
 ## Technologies Used
 
@@ -11,7 +13,10 @@ The notes-express is API that allows to manage notes.
 
 ## Prerequisites
 
-Before running the application, make sure you have the Node.js installed.
+Before running the application, ensure you have the following prerequisites installed on your system:
+
+- Node.js
+- Docker
 
 ## Installation
 
@@ -21,9 +26,11 @@ Before running the application, make sure you have the Node.js installed.
 4. Build the application `npm run build`.
 5. Update `.env` if it is necessary.
 6. Run the application `docker-compose up`.
-7. Test API using Postman at `http://localhost:3001/` (use port specified in your `.env` as `APP_HOST_PORT` by default it is `3001`).
+7. Install and run [front-end](https://github.com/marharita08/notes-react).
 
 ## Usage
+
+The API receives data in the request body in JSON format.
 
 1. POST /notes - create new note. Required request body fields:
    - name;

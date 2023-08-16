@@ -1,6 +1,6 @@
 create table if not exists categories (
     category_id serial primary key,
-    category    varchar(100) not null
+    name    varchar(100) not null
 );
 
 create table if not exists notes (
@@ -24,7 +24,7 @@ BEGIN
         SELECT COUNT(*) INTO row_count FROM categories;
 
         IF row_count = 0 THEN
-            INSERT INTO categories (category)
+            INSERT INTO categories (name)
             VALUES ('Task'),
             ('Idea'),
             ('Random Thought');

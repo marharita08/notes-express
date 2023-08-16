@@ -40,9 +40,8 @@ async function getOne(id: number): Promise<INote | null> {
     return Note.findByPk(id, { include: [{ model: Category, as:'category' }] });
 }
 
-async function add(note: INoteAdd): Promise<number> {
-    const createdNote = await Note.create(note)
-    return createdNote.note_id;
+async function add(note: INoteAdd): Promise<INote> {
+    return await Note.create(note);
 }
 
 async function delete_(id: number): Promise<void> {

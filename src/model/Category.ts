@@ -3,12 +3,12 @@ import sequelize  from "../repositories/SequelizeORM";
 
 export interface ICategory {
     category_id: number,
-    category: string
+    name: string
 }
 
 class Category extends Model<ICategory> {
     category_id!: number;
-    category!: string
+    name!: string
 }
 
 Category.init({
@@ -17,7 +17,7 @@ Category.init({
         autoIncrement: true,
         primaryKey: true
     },
-    category: {
+    name: {
         type: DataTypes.STRING(100),
         allowNull: false
     }

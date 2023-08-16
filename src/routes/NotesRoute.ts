@@ -41,30 +41,30 @@ NotesRoute.get('/:id', validateEmptyRequestBody,
 
 NotesRoute.post('/', validatePostRequest,
     asyncHandler(async (req: Request, res: Response)=> {
-      const id = await NotesService.addOne(req.body);
-      res.status(HttpStatusCodes.CREATED).json({ id });
+      const note = await NotesService.addOne(req.body);
+      res.status(HttpStatusCodes.CREATED).json(note);
 }));
 
 NotesRoute.patch('/:id', validateUpdateRequest,
     asyncHandler(async (req: Request, res: Response)=> {
       const id = +req.params.id;
-      await NotesService.update(id, req.body);
-      res.status(HttpStatusCodes.OK).end();
+      const note = await NotesService.update(id, req.body);
+      res.status(HttpStatusCodes.OK).json(note);
 }));
 
 NotesRoute.patch('/archive/:id', validateArchiveRequest,
     asyncHandler(async (req: Request, res: Response)=> {
           const id = +req.params.id;
           const { archived } = req.body;
-          await NotesService.updateArchived(id, archived);
-          res.status(HttpStatusCodes.OK).end();
+          const note = await NotesService.updateArchived(id, archived);
+          res.status(HttpStatusCodes.OK).json(note);
 }));
 
 NotesRoute.delete('/:id', validateEmptyRequestBody,
     asyncHandler(async (req: Request, res: Response)=> {
       const id = +req.params.id;
-      await NotesService.delete(id);
-      res.status(HttpStatusCodes.OK).end();
+      const note = await NotesService.delete(id);
+      res.status(HttpStatusCodes.OK).json(note);
 }));
 
 export default NotesRoute;
