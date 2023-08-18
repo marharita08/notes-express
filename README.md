@@ -1,6 +1,6 @@
 # Notes
 
-This repository holds back-end of the Note App. It's front-end available by [link](https://github.com/marharita08/notes-react).
+This repository holds back-end of the Note App. It's front-end available at the [link](https://github.com/marharita08/notes-react).
 
 The Notes App is an application that allows users to manage their notes effectively. Users can add, edit, and delete notes. Additionally, notes can be archived and unarchived for better organization.
 
@@ -9,7 +9,7 @@ The Notes App is an application that allows users to manage their notes effectiv
 - TypeScript
 - Express
 - Docker
-- PosgreSQL
+- PostgreSQL
 
 ## Prerequisites
 
